@@ -33,6 +33,7 @@ class ChatRepositoryImpl(
 
     private val json = Json { ignoreUnknownKeys = true }
     var onToolRequest: (suspend (ToolRequest) -> String)? = null
+    var localMessageHandler: (suspend (text: String, images: List<ImageAttachment>, onStatus: (String?) -> Unit) -> Boolean)? = null
 
     private val _displayLimit = MutableStateFlow(INITIAL_LOAD_COUNT)
     private val _statusLabel = MutableStateFlow<String?>(null)
@@ -68,6 +69,11 @@ class ChatRepositoryImpl(
     }
 
     override suspend fun sendMessage(text: String, images: List<ImageAttachment>, inputMode: String?) {
+        val handler = localMessageHandler
+        if (handler != null && handler.invoke(text, images) { _statusLabel.value = it }) {
+            return
+        }
+
         val results = images.map { imageFileStorage.saveFromUri(it.uri) }
         val entity = MessageMapper.toEntity(text, results.map { it.imageData }, MessageStatus.SENDING)
         messageDao.insert(entity)

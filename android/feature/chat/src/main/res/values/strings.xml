@@ -12,6 +12,8 @@
     <string name="settings_tts_speaking">Speaking…</string>
     <string name="settings_tts_test">Test Voice</string>
     <string name="settings_other_section">Other Settings</string>
+    <string name="settings_local_model">AI Engine &amp; Local Model</string>
+    <string name="settings_local_model_desc">Configure inbuilt llama.cpp (.gguf) or Cloud AI</string>
     <string name="settings_backend_config">Backend Config</string>
     <string name="settings_backend_config_desc">Configure backend server settings</string>
     <string name="settings_app_settings">App Settings</string>

@@ -24,6 +24,8 @@ import io.clawdroid.core.data.remote.WebSocketClient
 import io.clawdroid.core.ui.theme.ClawDroidTheme
 import io.clawdroid.feature.chat.screen.ChatScreen
 import io.clawdroid.feature.chat.screen.SettingsScreen
+import io.clawdroid.llama.LlamaModelManager
+import io.clawdroid.llama.ui.LlamaSettingsScreen
 import io.clawdroid.navigation.NavRoutes
 import io.clawdroid.settings.AppSettingsScreen
 import io.clawdroid.setup.SetupWizardScreen
@@ -45,14 +47,19 @@ class MainActivity : ComponentActivity() {
                 val navController = rememberNavController()
                 val wsClient: WebSocketClient = koinInject()
 
-                // Observe setup_required state from server
-                LaunchedEffect(Unit) {
-                    wsClient.setupRequired.collect { required ->
-                        if (required) {
-                            val current = navController.currentDestination?.route
-                            if (current != NavRoutes.SETUP) {
-                                navController.navigate(NavRoutes.SETUP) {
-                                    launchSingleTop = true
+                val llamaManager: LlamaModelManager = koinInject()
+                val isLocalMode by llamaManager.isLocalMode.collectAsState()
+
+                // Observe setup_required state from server (only when cloud mode active)
+                LaunchedEffect(isLocalMode) {
+                    if (!isLocalMode) {
+                        wsClient.setupRequired.collect { required ->
+                            if (required) {
+                                val current = navController.currentDestination?.route
+                                if (current != NavRoutes.SETUP) {
+                                    navController.navigate(NavRoutes.SETUP) {
+                                        launchSingleTop = true
+                                    }
                                 }
                             }
                         }
@@ -70,6 +77,12 @@ class MainActivity : ComponentActivity() {
                             onNavigateBack = { navController.popBackStack() },
                             onNavigateToBackendSettings = { navController.navigate(NavRoutes.BACKEND_SETTINGS) },
                             onNavigateToAppSettings = { navController.navigate(NavRoutes.appSettings()) },
+                            onNavigateToLlamaSettings = { navController.navigate(NavRoutes.LLAMA_SETTINGS) },
+                        )
+                    }
+                    composable(NavRoutes.LLAMA_SETTINGS) {
+                        LlamaSettingsScreen(
+                            onNavigateBack = { navController.popBackStack() }
                         )
                     }
                     navigation(

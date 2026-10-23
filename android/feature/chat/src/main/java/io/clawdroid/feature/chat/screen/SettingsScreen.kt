@@ -70,6 +70,7 @@ fun SettingsScreen(
     onNavigateBack: () -> Unit,
     onNavigateToBackendSettings: () -> Unit,
     onNavigateToAppSettings: () -> Unit,
+    onNavigateToLlamaSettings: () -> Unit = {},
     viewModel: SettingsViewModel = koinViewModel()
 ) {
     val uiState by viewModel.uiState.collectAsState()
@@ -178,6 +179,12 @@ fun SettingsScreen(
                     stringResource(R.string.settings_other_section),
                     style = MaterialTheme.typography.titleMedium,
                     color = NeonCyan
+                )
+
+                NavigationCard(
+                    title = stringResource(R.string.settings_local_model),
+                    subtitle = stringResource(R.string.settings_local_model_desc),
+                    onClick = onNavigateToLlamaSettings,
                 )
 
                 NavigationCard(

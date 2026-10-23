@@ -5,6 +5,11 @@ import io.ktor.client.HttpClient
 import io.ktor.client.engine.okhttp.OkHttp
 import io.ktor.client.plugins.websocket.WebSockets
 import io.clawdroid.core.data.local.AppDatabase
+import io.clawdroid.core.data.local.dao.MessageDao
+import io.clawdroid.core.data.local.entity.MessageEntity
+import io.clawdroid.core.data.mapper.MessageMapper
+import io.clawdroid.core.domain.model.MessageStatus
+import io.clawdroid.llama.LlamaModelManager
 import io.clawdroid.assistant.AccessibilityScreenshotSource
 import io.clawdroid.assistant.DeviceController
 import io.clawdroid.core.data.local.ImageFileStorage
@@ -87,9 +92,14 @@ val appModule = module {
     // ImageFileStorage
     single { ImageFileStorage(androidContext()) }
 
+    // Llama Model Manager
+    single { LlamaModelManager(androidContext()) }
+
     // Repository
     single<ChatRepository> {
         val repo = ChatRepositoryImpl(get(), get(), get(), get())
+        val llamaManager: LlamaModelManager = get()
+        val messageDao: MessageDao = get()
         val handler = ToolRequestHandler(
             context = androidContext(),
             deviceController = get(),
@@ -100,6 +110,32 @@ val appModule = module {
         repo.onToolRequest = { request ->
             val response = handler.handle(request)
             if (response.success) response.result ?: "" else response.error ?: "unknown error"
+        }
+        repo.localMessageHandler = { text, _, onStatus ->
+            if (llamaManager.isLocalMode.value) {
+                val userEntity = MessageMapper.toEntity(text, emptyList(), MessageStatus.SENT)
+                messageDao.insert(userEntity)
+                val reply = llamaManager.processLocalMessage(
+                    userText = text,
+                    onStatus = onStatus,
+                    onToolRequest = { req ->
+                        val resp = handler.handle(req)
+                        if (resp.success) resp.result ?: "" else resp.error ?: "unknown error"
+                    }
+                )
+                onStatus(null)
+                val replyEntity = MessageEntity(
+                    id = UUID.randomUUID().toString(),
+                    content = reply,
+                    sender = "AGENT",
+                    timestamp = System.currentTimeMillis(),
+                    status = MessageStatus.RECEIVED.name
+                )
+                messageDao.insert(replyEntity)
+                true
+            } else {
+                false
+            }
         }
         repo
     }

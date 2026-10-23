@@ -3,6 +3,7 @@ package io.clawdroid.navigation
 object NavRoutes {
     const val CHAT = "chat"
     const val SETTINGS = "settings"
+    const val LLAMA_SETTINGS = "llama_settings"
     const val BACKEND_SETTINGS = "backend_settings"
     const val BACKEND_SETTINGS_LIST = "backend_settings_list"
     const val BACKEND_SETTINGS_SECTION = "backend_settings/{sectionKey}"

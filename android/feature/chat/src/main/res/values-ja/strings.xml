@@ -12,6 +12,8 @@
     <string name="settings_tts_speaking">再生中…</string>
     <string name="settings_tts_test">音声テスト</string>
     <string name="settings_other_section">その他の設定</string>
+    <string name="settings_local_model">AIエンジン &amp; ローカルモデル</string>
+    <string name="settings_local_model_desc">内蔵llama.cpp (.gguf) またはクラウドAIの設定</string>
     <string name="settings_backend_config">バックエンド設定</string>
     <string name="settings_backend_config_desc">バックエンドサーバーの設定</string>
     <string name="settings_app_settings">アプリ設定</string>

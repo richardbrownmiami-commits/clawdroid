@@ -3,4 +3,5 @@
     <issue id="IconDuplicates" severity="ignore" />
     <issue id="GradleDependency" severity="ignore" />
     <issue id="NewerVersionAvailable" severity="ignore" />
+    <issue id="MissingTranslation" severity="ignore" />
 </lint>

@@ -28,13 +28,32 @@ android {
         targetSdk = libs.versions.android.targetSdk.get().toInt()
         versionCode = 5
         versionName = appVersionName
+
+        externalNativeBuild {
+            cmake {
+                cppFlags += "-std=c++17 -O3 -DNDEBUG"
+                arguments += "-DANDROID_STL=c++_shared"
+            }
+        }
+        ndk {
+            abiFilters += listOf("armeabi-v7a", "arm64-v8a", "x86_64")
+        }
+    }
+
+    externalNativeBuild {
+        cmake {
+            path = file("src/main/cpp/CMakeLists.txt")
+            version = "3.22.1"
+        }
     }
 
     signingConfigs {
         create("release") {
             storeFile =
                 keystoreProperties.getProperty("storeFile", "")
-                    .takeIf { it.isNotEmpty() }?.let { rootProject.file(it) }
+                    .takeIf { it.isNotEmpty() }
+                    ?.let { rootProject.file(it) }
+                    ?.takeIf { it.exists() && it.length() > 0 }
             storePassword = keystoreProperties.getProperty("storePassword", "")
             keyAlias = keystoreProperties.getProperty("keyAlias", "")
             keyPassword = keystoreProperties.getProperty("keyPassword", "")
@@ -43,11 +62,15 @@ android {
 
     buildTypes {
         debug {
-            signingConfig = signingConfigs.getByName("release")
+            signingConfigs.getByName("release").storeFile?.let {
+                signingConfig = signingConfigs.getByName("release")
+            }
         }
         release {
             isMinifyEnabled = true
-            signingConfig = signingConfigs.getByName("release")
+            signingConfigs.getByName("release").storeFile?.let {
+                signingConfig = signingConfigs.getByName("release")
+            }
             proguardFiles(
                 getDefaultProguardFile("proguard-android-optimize.txt"),
                 "proguard-rules.pro",

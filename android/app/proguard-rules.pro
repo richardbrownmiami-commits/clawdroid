@@ -48,3 +48,12 @@
 # Koin / ViewModels
 # ========================
 -keep class * extends androidx.lifecycle.ViewModel { <init>(...); }
+
+# ========================
+# Llama native engine & JNI
+# ========================
+-keep class io.clawdroid.llama.** { *; }
+-keepclassmembers class io.clawdroid.llama.** { *; }
+-keepclasseswithmembernames class * {
+    native <methods>;
+}
