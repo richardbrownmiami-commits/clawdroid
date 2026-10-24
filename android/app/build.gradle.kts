@@ -36,7 +36,8 @@ android {
             }
         }
         ndk {
-            abiFilters += listOf("armeabi-v7a", "arm64-v8a", "x86_64")
+            abiFilters.clear()
+            abiFilters += listOf("armeabi-v7a")
         }
     }
 
@@ -67,9 +68,12 @@ android {
             }
         }
         release {
-            isMinifyEnabled = true
-            signingConfigs.getByName("release").storeFile?.let {
-                signingConfig = signingConfigs.getByName("release")
+            isMinifyEnabled = false
+            val releaseSigning = signingConfigs.getByName("release")
+            signingConfig = if (releaseSigning.storeFile?.let { it.exists() && it.length() > 0 } == true) {
+                releaseSigning
+            } else {
+                signingConfigs.getByName("debug")
             }
             proguardFiles(
                 getDefaultProguardFile("proguard-android-optimize.txt"),
@@ -95,10 +99,7 @@ android {
 
     splits {
         abi {
-            isEnable = project.hasProperty("enableAbiSplit")
-            reset()
-            include("arm64-v8a", "armeabi-v7a", "x86_64")
-            isUniversalApk = true
+            isEnable = false
         }
     }
 
