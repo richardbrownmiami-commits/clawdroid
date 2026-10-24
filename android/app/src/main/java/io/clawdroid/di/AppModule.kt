@@ -128,6 +128,7 @@ val appModule = module {
                     id = UUID.randomUUID().toString(),
                     content = reply,
                     sender = "AGENT",
+                    imagePathList = null,
                     timestamp = System.currentTimeMillis(),
                     status = MessageStatus.RECEIVED.name
                 )
