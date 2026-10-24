@@ -134,7 +134,7 @@ fun LlamaSettingsScreen(
                     navigationIcon = {
                         IconButton(onClick = onNavigateBack) {
                             Icon(
-                                painter = painterResource(LucideR.drawable.lucide_arrow_left),
+                                painter = painterResource(LucideR.drawable.lucide_ic_arrow_left),
                                 contentDescription = "Back",
                                 tint = TextPrimary
                             )
